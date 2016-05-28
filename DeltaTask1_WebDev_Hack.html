@@ -32,11 +32,11 @@ th {
 
 <h2>This is the HACKER MODE countdown timer</h2><br><br>
 
-<button id="start" onclick="timerVariable = setInterval(refresh, 1);">START</button>
+<button id="start" onclick="start();">START</button>
 
 <button id="Hack" onclick="reset(); timerVariable = setInterval(refresh, 1);">RESET</button>
 
-<button id="stop" onclick="clearInterval(timerVariable);">STOP</button>
+<button id="stop" onclick="stop();">STOP</button>
 
 <table>
   <tr>
@@ -60,6 +60,7 @@ th {
 var d = new Date(2016,11,13,24,00,00,00);
 var totime = d.getTime();
 var indate,intime,inday=0,inmonth=0,inyear=0,inhour=0,inmin=0,insec=0,datearr,timearr;
+var timerVariable;
 function refresh(){
 
 var today = new Date();
@@ -82,7 +83,7 @@ remdays =0;
 remhours=0;
 remmins=0;
 remsec=0;
-clearInterval(timerVariable);
+stop();
 } 
 else{
 document.getElementById("days").innerHTML=remdays;
@@ -102,7 +103,14 @@ function reset(){
    var newdate = new Date(arrayDate[2],arrayDate[1]-1,arrayDate[0],arrayTime[0],arrayTime[1],arrayTime[2]);
    totime=newdate.getTime();
 }
-
+function stop(){
+clearInterval(timerVariable);
+return null;
+}
+function start(){
+timerVariable = setInterval(refresh, 1);
+return null;
+}
 </script>
 
 
