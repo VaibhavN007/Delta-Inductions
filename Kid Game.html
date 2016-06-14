@@ -1,0 +1,361 @@
+<html>
+<head>
+	<title>Hurdles</title>
+
+	<style>
+		canvas{
+			display:block;
+			position:absolute;
+			margin:auto;
+			top:100;
+			left:0;
+			right:0;
+			border:1px solid black;
+			background-color:#4dffff;
+		}
+		p{
+			position:absolute;
+			top:380;
+			left:560;
+			font-family: "Georgia", Times, serif;
+			font-style:italic;
+			font-size:50px;
+		}
+		button{
+			position:absolute;
+			top:540;
+			left:587;
+			font-family: "Times New Roman", Times, serif;
+			font-style:italic;
+			font-size:30px;
+		}
+
+	</style>
+</head>
+
+<body>
+<script>
+
+window.onload = function(){
+
+var
+boy,boy1,boy2,boy3,boy4,boy5,boy6,
+monsters,monster1,monster2,monster3,monster4,monster5,monster6,monster7,monster8,
+start,
+ground,
+over,
+speed = 2,
+
+groundpos = 0,
+ground_frames = 0,
+frames = 0,
+canvas = document.getElementById("canvas"),
+ctx = canvas.getContext("2d"),
+width = canvas.width,
+height = canvas.height,
+
+states = {Splash:0, Game:1, Score:2},
+currentState,
+
+scores =0,
+
+kid={
+	x: 50,
+	y:208,
+	width:48,
+	height:80,
+	velocity: 0,
+	frame:0,
+	i:0,
+	j:1,
+	animation:[0,1,2,3,4,5],
+	gravity: 0.2,
+	_jump:7.7,
+	
+	jump: function(){
+		this.velocity = -this._jump;
+	},
+	
+	update: function(){
+		this.i++;
+		this.j = (this.i)%60;
+		if(this.j<10) this.frame = 0;
+		else if(this.j>10 && this.j<=20) this.frame = 1;
+		else if(this.j>20 && this.j<=30) this.frame = 2;
+		else if(this.j>30 && this.j<=40) this.frame = 3;
+		else if(this.j>40 && this.j<=50) this.frame = 4;
+		else if(this.j>50 && this.j<=60)this.frame = 5;
+		
+		if(currentState === states.Splash){
+			console.log("Splash");
+		}
+		else{
+			ctx.fillStyle = "#4dffff";
+			ctx.fillRect(this.x,this.y,boy1.width,boy1.height+.5);
+			
+			this.velocity += this.gravity;
+			this.y += this.velocity;
+			
+			if(this.y >= 400-192){       
+				this.y = 400-192;
+				
+				this.velocity = this._jump;
+			}
+			if(this.y<10){
+				this.y = 10;
+			}
+			
+			if(this.velocity<this._jump)
+				this.frame = 0;
+			
+		}
+		
+	},
+	draw: function(ctx){
+		var n = this.animation[this.frame];
+		ctx.fillStyle = "#4dffff";
+		ctx.fillRect(this.x,this.y,boy1.width,boy1.height);
+		ctx.drawImage(boy[n],this.x,this.y);
+	}
+
+},
+
+obstacle = {
+	
+	_obstacles : [],
+	random_obstacle : 0,
+	current_obstacle:monster1,
+	no_of_obstacles:0,
+	width:40,
+	height:40,
+	
+	reset: function(){
+		this._obstacles = [];
+	},
+	
+	update: function(){
+		
+		this.random_obstacle = Math.floor(7.9999999*Math.random());
+		
+		this.random_time = Math.floor(100*Math.random());
+						
+		if(((frames%240)>30 && (frames%240)<90) || ((frames%240)>150 && (frames%240)<210))
+		{
+		
+			if(this.no_of_obstacles===0){
+				this._obstacles.push({
+					x:700,
+					y:400-monsters[this.random_obstacle%8].height-110,
+					s:monsters[this.random_obstacle%8],
+					width:monsters[this.random_obstacle%8].width,
+					height:monsters[this.random_obstacle%8].height,
+				});
+			
+				this.no_of_obstacles=1;
+		
+			}
+		}
+	
+		else{
+			this.no_of_obstacles = 0;
+		}
+	
+	for(var i=0, len=this._obstacles.length; i<len; i++){
+	
+		//this loop goes through each obstacle one by one, each frame
+		
+		var p = this._obstacles[i];
+		
+		p.x -= speed;
+		
+		//collision detection here
+			
+			if( (kid.x+kid.width-8)>p.x && (kid.x+kid.width-8)<(p.x+p.width) && (kid.y+kid.height-4)>p.y && (kid.y+kid.height-4)<(p.y+p.height) )
+			{
+				currentState = states.Score;
+			}
+			
+			if( (kid.x+8)>p.x && (kid.x+8)<(p.x+p.width) && (kid.y+kid.height-4)>p.y && (kid.y+kid.height-4)<(p.y+p.height) )
+			{
+				currentState = states.Score;
+			}
+		//collision detection ends here
+		
+		
+			
+			if(p.x<-70) {
+				this._obstacles.splice(i,1);
+				//this._obstacles.shift();           //shift() works just as same!
+				i--;
+				len--;
+				scores++;
+				speed += 0.08 * speed;
+				console.log(speed);
+			}
+			
+			
+		}
+		
+	},
+	
+	draw: function(ctx){
+	
+		for(var i=0, len=this._obstacles.length; i<len; i++){
+		
+			var p = this._obstacles[i];
+			
+			ctx.fillStyle = "#4dffff";
+			ctx.fillRect(p.x,p.y,p.s.width+50,p.s.height+50);
+			ctx.drawImage(p.s,p.x,p.y);
+			
+		}
+		
+	}
+
+};
+
+Over = {
+
+	gameOver : function(ctx){
+		ctx.drawImage(over,210,80);
+		throw new FatalError("Pausing the whole Script!");
+	}
+	
+};
+
+
+function initSprites(){
+	boy1 = new Image();
+	boy1.src = "frame-1.png";
+	boy2 = new Image();
+	boy2.src = "frame-2.png";
+	boy3 = new Image();
+	boy3.src = "frame-3.png";
+	boy4 = new Image();
+	boy4.src = "frame-4.png";
+	boy5 = new Image();
+	boy5.src = "frame-5.png";
+	boy6 = new Image();
+	boy6.src = "frame-6.png";
+	boy = [boy1, boy2, boy3, boy4, boy5, boy6];
+	
+	monster1 = new Image();
+	monster1.src = "monster 1.png";
+	monster2 = new Image();
+	monster2.src = "monster 2.png";
+	monster3 = new Image();
+	monster3.src = "monster 3.png";
+	monster4 = new Image();
+	monster4.src = "monster 4.png";
+	monster5 = new Image();
+	monster5.src = "monster 5.png";
+	monster6 = new Image();
+	monster6.src = "monster 6.png";
+	monster7 = new Image();
+	monster7.src = "monster 7.png";
+	monster8 = new Image();
+	monster8.src = "monster 8.png";
+	monsters = [monster1,monster2,monster3,monster4,monster5,monster6,monster7,monster8];
+	
+	start = new Image();
+	start.src = "click-here-to-start.png";
+	
+	ground = new Image();
+	ground.src = "ground3.png";
+	
+	over = new Image();
+	over.src = "gameover.png";
+};
+
+function onpress(evt){
+	switch(currentState){
+	
+		case states.Splash :
+			currentState = states.Game;
+			kid.jump();
+			break;
+		
+		case states.Game :
+			if(kid.y==400-192)
+			kid.jump();
+			break;
+			
+		case states.Score :
+			break;	
+	}
+};
+
+function main(){
+	initSprites();
+	currentState = states.Splash;
+	document.addEventListener("mousedown",onpress);
+	run();
+	
+};
+
+function run(){
+	var loop = function(){
+		update();
+		render();
+		window.requestAnimationFrame(loop, canvas);
+	};
+	window.requestAnimationFrame(loop, canvas);
+};
+
+function update(){
+
+	ground_frames++;
+	frames++;
+	
+	groundpos = (groundpos - speed) %504;
+	
+	if(currentState === states.Game){
+		obstacle.update();
+	}
+	
+	kid.update();
+	
+};
+
+function render(){
+
+	if(currentState === states.Game){
+		obstacle.draw(ctx);
+	}
+	
+	kid.draw(ctx);
+	
+	if(currentState === states.Score){
+		Over.gameOver(ctx);
+	}
+	
+	if(currentState === states.Splash)
+		ctx.drawImage(start,(width-start.width)/2,80);
+	else{
+		ctx.fillStyle = "#4dffff";
+		ctx.fillRect((width-start.width)/2,80,160,155);
+	}
+
+	ctx.drawImage(ground,groundpos,height-ground.height);
+	ctx.drawImage(ground,groundpos+ground.width,height-ground.height);
+	ctx.drawImage(ground,groundpos+ground.width*2,height-ground.height);
+	ctx.drawImage(ground,groundpos+ground.width*3,height-ground.height);
+	
+	document.getElementById("score").innerHTML = "Score : "+scores;
+	
+}; 
+
+main(); 
+
+//main will call update and render methods in an indefinite loop
+//update will call kid.update and obstacle.update which will update the positions of each object
+//render will call kid.draw and obstacle.draw which will draw them on canvas with the characteristics defined in each object's update method. 
+
+};
+</script>
+<canvas id="canvas" width=700 height=400>
+</canvas>
+<p id="score"></p>
+<button onclick = "location.reload();">PLAY AGAIN</button>
+</body>
+</html>
