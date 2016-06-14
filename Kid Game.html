@@ -189,7 +189,7 @@ obstacle = {
 				i--;
 				len--;
 				scores++;
-				speed += 0.08 * speed;
+				if(speed<40) speed += 0.08 * speed;
 				console.log(speed);
 			}
 			
