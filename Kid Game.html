@@ -45,6 +45,7 @@ start,
 ground,
 over,
 
+speed = 2,
 groundpos = 0,
 ground_frames = 0,
 frames = 0,
@@ -165,7 +166,7 @@ obstacle = {
 		
 		var p = this._obstacles[i];
 		
-		p.x -= 2;
+		p.x -= speed;
 		
 		//collision detection here
 			
@@ -182,12 +183,13 @@ obstacle = {
 		
 		
 			
-			if(p.x<-60) {
+			if(p.x<-70) {
 				this._obstacles.splice(i,1);
 				//this._obstacles.shift();           //shift() works just as same!
 				i--;
 				len--;
 				scores++;
+				speed += 0.8 * speed; 
 			}
 			
 			
@@ -304,7 +306,7 @@ function update(){
 	ground_frames++;
 	frames++;
 	
-	groundpos = (groundpos - 2) %504;
+	groundpos = (groundpos - speed) %504;
 	
 	if(currentState === states.Game){
 		obstacle.update();
